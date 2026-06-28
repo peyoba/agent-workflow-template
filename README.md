@@ -12,6 +12,35 @@
 - 比重型多 Agent 平台更轻：没有后台服务、dashboard、MCP 编排器或知识图谱。
 - 适合真实项目：强调 SPEC 边界、风险分级、TDD、证据门和交付记录。
 
+## 工作流一览
+
+```mermaid
+flowchart TD
+    A[复制模板到项目] --> B[workflow doctor]
+    B --> C[assess-risk 或 new-task --level auto]
+    C --> D[生成 SPEC / 任务卡 / 初始交接]
+    D --> E[主 Agent 补全 SPEC]
+    E --> F{用户确认}
+    F -->|未确认| E
+    F -->|确认| G[L1 / L2 / L3 角色执行]
+    G --> H[测试 / 审查 / 验收 / 风险门]
+    H --> I[verification 证据门]
+    I --> J[delivery report]
+```
+
+## 和其他方案的区别
+
+| 方案 | 优点 | 代价 | 本项目的选择 |
+|------|------|------|--------------|
+| 单文件 `AGENTS.md` | 接入最快 | 缺少任务状态、角色产物和证据记录 | 保留 `AGENTS.md`，再补工作流目录和 CLI |
+| 大型多 Agent 平台 | 自动化强，功能多 | 安装重、学习成本高、容易过度工程化 | 不做后台、dashboard、MCP 编排器 |
+| SDD / 规格驱动流程 | SPEC 纪律强 | 可能弱化工程角色和交付证据 | SPEC 边界 + 工程角色 + 证据门 |
+| 本模板 | 轻量、可复制、可检查 | 不负责自动长期调度 | 让主 Agent 按状态和质量门推进 |
+
+适合使用本模板的项目：真实产品、长期维护代码库、AI 参与开发但需要测试和审查证据的工程项目。
+
+不适合使用本模板的场景：一次性脚本、纯实验 demo、需要完整自动化编排平台的团队。
+
 ## 快速使用
 
 复制以下内容到目标项目根目录：
@@ -96,3 +125,7 @@ python3 scripts/workflow.py new-task "Add payment checkout" \
 python3 -m pytest tests/test_workflow_cli.py -v
 python3 scripts/workflow.py doctor
 ```
+
+## License
+
+MIT

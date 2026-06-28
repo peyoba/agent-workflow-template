@@ -79,6 +79,8 @@ def test_new_task_creates_standard_artifacts_and_updates_state(tmp_path: Path) -
     assert "# Add user login SPEC" in spec_text
     assert "## 风险等级\nL2" in spec_text
     assert "Touches authentication and user sessions." in spec_text
+    assert "## 文件边界" in spec_text
+    assert "## 验收证据" in spec_text
 
     task_card_text = task_card.read_text(encoding="utf-8")
     assert "## 任务等级\nL2" in task_card_text
@@ -112,3 +114,65 @@ def test_new_task_refuses_to_overwrite_existing_artifacts(tmp_path: Path) -> Non
     assert first.returncode == 0
     assert second.returncode == 1
     assert "already exists" in second.stdout
+
+
+def test_assess_risk_recommends_level_with_reasons(tmp_path: Path) -> None:
+    project = copy_template(tmp_path)
+
+    result = run_workflow(
+        project,
+        "assess-risk",
+        "Add payment checkout with API keys, database writes, and production deployment",
+    )
+
+    assert result.returncode == 0
+    assert "Recommended level: L3" in result.stdout
+    assert "payment" in result.stdout
+    assert "api key" in result.stdout
+    assert "database" in result.stdout
+    assert "deployment" in result.stdout
+
+
+def test_assess_risk_supports_chinese_task_text(tmp_path: Path) -> None:
+    project = copy_template(tmp_path)
+
+    result = run_workflow(
+        project,
+        "assess-risk",
+        "新增支付结账，保存数据库，并部署到生产环境",
+    )
+
+    assert result.returncode == 0
+    assert "Recommended level: L3" in result.stdout
+    assert "payment" in result.stdout
+    assert "database" in result.stdout
+    assert "deployment" in result.stdout
+
+
+def test_new_task_auto_level_uses_risk_assessment(tmp_path: Path) -> None:
+    project = copy_template(tmp_path)
+
+    result = run_workflow(
+        project,
+        "new-task",
+        "Add payment checkout",
+        "--level",
+        "auto",
+        "--summary",
+        "Add payment checkout with API keys and production deployment.",
+        "--date",
+        "2026-06-28",
+    )
+
+    assert result.returncode == 0, result.stderr
+
+    spec = project / ".agent-workflow" / "specs" / "2026-06-28-add-payment-checkout.md"
+    task_card = project / ".agent-workflow" / "task-cards" / "2026-06-28-add-payment-checkout.md"
+
+    spec_text = spec.read_text(encoding="utf-8")
+    task_card_text = task_card.read_text(encoding="utf-8")
+
+    assert "## 风险等级\nL3" in spec_text
+    assert "自动风险评分" in spec_text
+    assert "⑤安全工程师" in task_card_text
+    assert "⑩风险审查官" in task_card_text

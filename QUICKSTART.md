@@ -42,10 +42,26 @@ python3 scripts/workflow.py doctor
 
 开始新功能、bugfix 或重构前，先生成标准任务入口：
 
+先评估任务等级：
+
+```bash
+python3 scripts/workflow.py assess-risk "Add user login with session storage"
+```
+
+如果你已经知道等级，可以直接指定：
+
 ```bash
 python3 scripts/workflow.py new-task "Add user login" \
   --level L2 \
   --reason "Touches authentication and user sessions."
+```
+
+如果希望 CLI 根据标题、摘要和原因自动建议等级：
+
+```bash
+python3 scripts/workflow.py new-task "Add user login" \
+  --level auto \
+  --summary "Add user login with session storage."
 ```
 
 任务等级选择：
@@ -70,7 +86,21 @@ python3 scripts/workflow.py new-task "Add user login" \
 
 默认不会覆盖已存在的任务文件。如果确认要覆盖，显式加 `--force`。
 
-## 4. 启动开发
+## 4. 让 Agent 安装本模板
+
+如果你不想手动复制文件，可以在目标项目根目录打开 Agent，直接说：
+
+```text
+请把 https://github.com/peyoba/agent-workflow-template 安装到当前项目。
+
+要求：
+1. 复制 AGENTS.md、Agent.md、PROJECT_PROFILE.md、QUICKSTART.md、INSTALL_SUPERPOWERS.md、.agent-workflow/、scripts/ 和 tests/。
+2. 如果目标项目已经有 AGENTS.md、Agent.md 或 .agent-workflow/，不要覆盖，先展示差异并等待确认。
+3. 安装后运行 python3 scripts/workflow.py doctor。
+4. 如果 PROJECT_PROFILE.md 仍有占位符，先根据项目文件补全；无法确认的再问我。
+```
+
+## 5. 启动开发
 
 在项目根目录打开 Agent，对主 Agent 说：
 
@@ -99,7 +129,7 @@ python3 scripts/workflow.py new-task "Add user login" \
 当前任务入口已经生成，请先读取 .agent-workflow/state.md，再补全最新 spec 和任务卡。
 ```
 
-## 5. 用户需要确认什么
+## 6. 用户需要确认什么
 
 用户只需要在关键决策点介入：
 
@@ -107,7 +137,7 @@ python3 scripts/workflow.py new-task "Add user login" \
 2. 确认 SPEC 和任务清单。
 3. 遇到 `BLOCKED`、超过 2 次打回、范围扩大或技术方案变化时做决策。
 
-## 6. 主 Agent 必须先做什么
+## 7. 主 Agent 必须先做什么
 
 主 Agent 必须按顺序执行：
 
@@ -118,7 +148,7 @@ python3 scripts/workflow.py new-task "Add user login" \
 5. 执行 `superpowers_bootstrap_hook`。
 6. Superpowers 可用后进入 `intake_hook`。
 
-## 7. 开发过程产物放哪里
+## 8. 开发过程产物放哪里
 
 ```text
 .agent-workflow/specs/          SPEC
@@ -129,7 +159,7 @@ python3 scripts/workflow.py new-task "Add user login" \
 .agent-workflow/delivery/       交付报告
 ```
 
-## 8. 最小成功标准
+## 9. 最小成功标准
 
 一次开发交付至少要有：
 

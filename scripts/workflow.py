@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
@@ -84,6 +85,63 @@ ROLE_SKILLS = {
     "⑨部署工程师": "部署平台或 CI/CD 规范",
 }
 
+DEFAULT_REASON = "由主 Agent 在 intake_hook 中补充。"
+
+
+@dataclass(frozen=True)
+class RiskAssessment:
+    level: str
+    reasons: list[str]
+
+
+RISK_RULES = [
+    (
+        "L3",
+        "security",
+        ["security", "auth", "login", "permission", "role", "oauth", "jwt", "session", "安全", "登录", "权限", "会话", "认证"],
+    ),
+    (
+        "L3",
+        "payment",
+        ["payment", "checkout", "billing", "invoice", "subscription", "stripe", "refund", "支付", "结账", "账单", "订阅", "退款"],
+    ),
+    (
+        "L3",
+        "api key",
+        ["api key", "apikey", "secret", "token", "credential", "password", ".env", "密钥", "令牌", "凭证", "密码"],
+    ),
+    (
+        "L3",
+        "database",
+        ["database", "migration", "schema", "sql", "delete", "write", "db", "数据库", "迁移", "数据表", "删除", "写入", "保存"],
+    ),
+    (
+        "L3",
+        "deployment",
+        ["deploy", "deployment", "production", "ci/cd", "release", "rollback", "部署", "生产", "发布", "回滚"],
+    ),
+    (
+        "L3",
+        "external api",
+        ["webhook", "external api", "llm", "openai", "anthropic", "ark", "third-party", "外部 api", "第三方", "大模型"],
+    ),
+    (
+        "L2",
+        "core behavior",
+        ["feature", "workflow", "refactor", "api", "cli", "integration", "state", "功能", "工作流", "重构", "集成", "状态"],
+    ),
+    (
+        "L2",
+        "data handling",
+        ["cache", "file", "upload", "download", "import", "export", "report", "缓存", "文件", "上传", "下载", "导入", "导出", "报告"],
+    ),
+    (
+        "L2",
+        "test impact",
+        ["bug", "fix", "test", "validation", "parser", "error handling", "修复", "测试", "校验", "解析", "错误处理"],
+    ),
+]
+
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -97,12 +155,16 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
     new_task = subcommands.add_parser("new-task", help="Create task workflow artifacts.")
     new_task.add_argument("title", help="Task title.")
-    new_task.add_argument("--level", choices=["L1", "L2", "L3"], default="L2")
-    new_task.add_argument("--reason", default="由主 Agent 在 intake_hook 中补充。")
+    new_task.add_argument("--level", choices=["auto", "L1", "L2", "L3"], default="L2")
+    new_task.add_argument("--reason", default=DEFAULT_REASON)
     new_task.add_argument("--summary", default="由主 Agent 在 intake_hook 中补充。")
     new_task.add_argument("--date", default=date.today().isoformat())
     new_task.add_argument("--project-root", default=".", help="Project root to modify.")
     new_task.add_argument("--force", action="store_true", help="Overwrite existing generated files.")
+
+    assess_risk = subcommands.add_parser("assess-risk", help="Recommend L1/L2/L3 from task text.")
+    assess_risk.add_argument("text", help="Task description to assess.")
+    assess_risk.add_argument("--project-root", default=".", help="Project root, accepted for CLI consistency.")
 
     return parser.parse_args(argv)
 
@@ -225,6 +287,36 @@ def ensure_workflow_dirs(root: Path) -> None:
         (root / item).mkdir(parents=True, exist_ok=True)
 
 
+def assess_risk(text: str) -> RiskAssessment:
+    normalized = text.lower()
+    matched_levels: list[str] = []
+    reasons: list[str] = []
+
+    for level, reason, keywords in RISK_RULES:
+        if any(keyword in normalized for keyword in keywords):
+            matched_levels.append(level)
+            reasons.append(reason)
+
+    if "L3" in matched_levels:
+        return RiskAssessment("L3", sorted(set(reasons)))
+    if "L2" in matched_levels:
+        return RiskAssessment("L2", sorted(set(reasons)))
+    return RiskAssessment("L1", ["small scoped change"])
+
+
+def format_assessment_reason(assessment: RiskAssessment) -> str:
+    return "自动风险评分：{}。".format(", ".join(assessment.reasons))
+
+
+def run_assess_risk(args: argparse.Namespace) -> int:
+    assessment = assess_risk(args.text)
+    print(f"Recommended level: {assessment.level}")
+    print("Reasons:")
+    for reason in assessment.reasons:
+        print(f"- {reason}")
+    return 0
+
+
 def render_spec(title: str, level: str, reason: str, summary: str) -> str:
     return f"""# {title} SPEC
 
@@ -256,6 +348,20 @@ def render_spec(title: str, level: str, reason: str, summary: str) -> str:
 - 数据库：读取 PROJECT_PROFILE.md 后确认。
 - 部署：读取 PROJECT_PROFILE.md 后确认。
 
+## 文件边界
+- 允许修改：由主 Agent 在实施计划中列出具体路径。
+- 禁止修改：由主 Agent 在实施计划中列出配置、密钥、迁移或用户文件边界。
+- 需要先读取：PROJECT_PROFILE.md、相关源码、相关测试、当前状态文件。
+
+## 依赖关系
+- 前置任务：无，或由主 Agent 补充。
+- 依赖模块：由主 Agent 根据代码结构补充。
+- 可并行任务：由主 Agent 判断，只有互不共享文件的任务才可并行。
+
+## 任务拆分判断
+- 是否需要拆分：由主 Agent 判断。
+- 拆分理由：如果跨多个子系统、跨前后端、跨数据模型和部署，应拆成多个 SPEC。
+
 ## 风险等级
 {level}
 
@@ -266,6 +372,11 @@ def render_spec(title: str, level: str, reason: str, summary: str) -> str:
 - SPEC 经用户确认。
 - 任务卡已派发给 {level} 对应角色。
 - 完成前写入真实验证记录和交付报告。
+
+## 验收证据
+- 必须记录实际运行的测试、构建、lint 或人工验证命令。
+- 必须记录命令结果摘要。
+- 未验证项必须明确列出，不得用“应该可以”代替证据。
 """
 
 
@@ -413,6 +524,13 @@ def run_new_task(args: argparse.Namespace) -> int:
         return 1
 
     ensure_workflow_dirs(root)
+    level = args.level
+    reason = args.reason
+    if level == "auto":
+        assessment = assess_risk(f"{args.title}\n{args.summary}\n{args.reason}")
+        level = assessment.level
+        if reason == DEFAULT_REASON:
+            reason = format_assessment_reason(assessment)
 
     stem = f"{args.date}-{slugify(args.title)}"
     spec_path = root / ".agent-workflow" / "specs" / f"{stem}.md"
@@ -431,16 +549,16 @@ def run_new_task(args: argparse.Namespace) -> int:
     task_card_rel = relative(task_card_path, root)
     handoff_rel = relative(handoff_path, root)
 
-    spec_path.write_text(render_spec(args.title, args.level, args.reason, args.summary), encoding="utf-8")
+    spec_path.write_text(render_spec(args.title, level, reason, args.summary), encoding="utf-8")
     task_card_path.write_text(
-        render_task_card(args.title, args.level, args.reason, spec_rel),
+        render_task_card(args.title, level, reason, spec_rel),
         encoding="utf-8",
     )
     handoff_path.write_text(
-        render_handoff(args.title, args.level, spec_rel, task_card_rel),
+        render_handoff(args.title, level, spec_rel, task_card_rel),
         encoding="utf-8",
     )
-    state_path.write_text(render_state(args.title, args.level, args.reason), encoding="utf-8")
+    state_path.write_text(render_state(args.title, level, reason), encoding="utf-8")
 
     print(f"CREATED {spec_rel}")
     print(f"CREATED {task_card_rel}")
@@ -453,6 +571,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     if args.command == "doctor":
         return run_doctor(Path(args.project_root).resolve())
+    if args.command == "assess-risk":
+        return run_assess_risk(args)
     if args.command == "new-task":
         return run_new_task(args)
     raise ValueError(f"Unsupported command: {args.command}")

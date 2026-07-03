@@ -1,10 +1,40 @@
 # Quick Start
 
-本文件说明如何把本模板复制到任意开发项目，并启动 9+1 工程角色工作流。
+本文件说明如何把本模板作为插件或文件模板接入任意开发项目，并启动 9+1 工程角色工作流。
+
+## 0. 插件入口
+
+本仓库提供两个插件入口，共用同一个 `skills/` 目录：
+
+```text
+.codex-plugin/plugin.json
+.claude-plugin/plugin.json
+skills/agent-workflow/SKILL.md
+```
+
+在支持插件的 Agent 工具中，安装本仓库后使用 `agent-workflow` Skill。入口 Skill 会要求 Agent 检查项目上下文、安装或验证 `.agent-workflow/` 模板，并从 `intake_hook` 开始推进。
+
+如果当前工具不支持插件安装，继续按下面的文件模板方式复制。
 
 ## 1. 复制模板
 
 把以下内容复制到目标项目根目录：
+
+```text
+AGENTS.md
+Agent.md
+PROJECT_PROFILE.md
+.codex-plugin/
+.claude-plugin/
+.agent-workflow/
+skills/
+scripts/
+tests/
+QUICKSTART.md
+INSTALL_SUPERPOWERS.md
+```
+
+如果只是在业务项目内安装工作流，而不需要把业务项目本身发布为插件，至少复制：
 
 ```text
 AGENTS.md
@@ -32,6 +62,7 @@ python3 scripts/workflow.py doctor
 - `.agent-workflow/` 核心文件是否齐全。
 - 子 Agent 文档和模板是否齐全。
 - `.agent-workflow/state.md` 是否包含必要字段。
+- Codex / Claude 插件入口和 `agent-workflow` Skill 是否存在。
 - `PROJECT_PROFILE.md` 是否还存在明显占位符。
 - 本机是否能找到 Superpowers skills。
 - Markdown 代码块是否闭合。
@@ -94,10 +125,11 @@ python3 scripts/workflow.py new-task "Add user login" \
 请把 https://github.com/peyoba/agent-workflow-template 安装到当前项目。
 
 要求：
-1. 复制 AGENTS.md、Agent.md、PROJECT_PROFILE.md、QUICKSTART.md、INSTALL_SUPERPOWERS.md、.agent-workflow/、scripts/ 和 tests/。
-2. 如果目标项目已经有 AGENTS.md、Agent.md 或 .agent-workflow/，不要覆盖，先展示差异并等待确认。
-3. 安装后运行 python3 scripts/workflow.py doctor。
-4. 如果 PROJECT_PROFILE.md 仍有占位符，先根据项目文件补全；无法确认的再问我。
+1. 复制 AGENTS.md、Agent.md、PROJECT_PROFILE.md、QUICKSTART.md、INSTALL_SUPERPOWERS.md、.agent-workflow/、scripts/、tests/ 和 skills/。
+2. 如果目标项目也要作为插件发布，同时复制 .codex-plugin/ 和 .claude-plugin/。
+3. 如果目标项目已经有 AGENTS.md、Agent.md、skills/ 或 .agent-workflow/，不要覆盖，先展示差异并等待确认。
+4. 安装后运行 python3 scripts/workflow.py doctor。
+5. 如果 PROJECT_PROFILE.md 仍有占位符，先根据项目文件补全；无法确认的再问我。
 ```
 
 ## 5. 启动开发

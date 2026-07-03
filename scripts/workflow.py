@@ -43,6 +43,13 @@ EXPECTED_WORK_DIRS = [
     ".agent-workflow/delivery",
 ]
 
+EXPECTED_PLUGIN_FILES = [
+    (".codex-plugin/plugin.json", "Codex plugin manifest"),
+    (".claude-plugin/plugin.json", "Claude plugin manifest"),
+    ("skills/agent-workflow/SKILL.md", "agent-workflow skill"),
+    ("skills/agent-workflow/agents/openai.yaml", "agent-workflow Codex metadata"),
+]
+
 STATE_HEADINGS = [
     "## 当前任务",
     "## 风险等级",
@@ -244,6 +251,13 @@ def run_doctor(root: Path) -> int:
         if not (root / name).is_dir():
             failed = True
             print(f"FAIL missing directory {name}")
+
+    for path_name, label in EXPECTED_PLUGIN_FILES:
+        if (root / path_name).exists():
+            print(f"PASS {label} present")
+        else:
+            failed = True
+            print(f"FAIL missing {path_name}")
 
     state_path = root / ".agent-workflow" / "state.md"
     if state_path.exists():

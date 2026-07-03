@@ -1,0 +1,38 @@
+{
+  "name": "agent-workflow",
+  "version": "0.1.0",
+  "description": "A lightweight multi-agent engineering workflow template and skill package for specs, risk levels, task cards, handoffs, verification, and delivery reports.",
+  "author": {
+    "name": "peyoba",
+    "url": "https://github.com/peyoba"
+  },
+  "homepage": "https://github.com/peyoba/agent-workflow-template",
+  "repository": "https://github.com/peyoba/agent-workflow-template",
+  "license": "MIT",
+  "keywords": [
+    "agent-workflow",
+    "skills",
+    "multi-agent",
+    "tdd",
+    "spec",
+    "verification"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Agent Workflow",
+    "shortDescription": "Install and run a lightweight multi-agent engineering workflow",
+    "longDescription": "Use Agent Workflow to install a reusable project workflow and guide coding agents through intake, risk classification, specs, task cards, TDD, handoffs, verification, and delivery reports.",
+    "developerName": "peyoba",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Install Agent Workflow in this project.",
+      "Start a new task using the Agent Workflow process."
+    ],
+    "websiteURL": "https://github.com/peyoba/agent-workflow-template"
+  }
+}

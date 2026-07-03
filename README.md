@@ -1,6 +1,6 @@
 # Agent Workflow Template
 
-一个可复制到任意开发项目的多子 Agent 工程工作流模板。
+一个可作为 Codex / Claude Code 插件安装，也可复制到任意开发项目的多子 Agent 工程工作流模板。
 
 它把 AI 代码协作拆成主 Agent、测试工程师、开发工程师、验收工程师、质量工程师、安全工程师、性能工程师、文档工程师、集成工程师、部署工程师和风险审查官等角色，并通过 L1 / L2 / L3 分级控制实际启用范围。
 
@@ -9,6 +9,7 @@
 本项目刻意保持轻量：
 
 - 比单个 `AGENTS.md` 更完整：包含角色、hook、状态、任务卡、验证和交付模板。
+- 比单一 Skill 更完整：提供 `.codex-plugin/`、`.claude-plugin/` 和共享 `skills/`。
 - 比重型多 Agent 平台更轻：没有后台服务、dashboard、MCP 编排器或知识图谱。
 - 适合真实项目：强调 SPEC 边界、风险分级、TDD、证据门和交付记录。
 
@@ -89,6 +90,9 @@ python3 scripts/workflow.py new-task "Add payment checkout" \
 ## 核心文件
 
 - `Agent.md` / `AGENTS.md`：项目级 Agent 入口规则。
+- `.codex-plugin/plugin.json`：Codex 插件入口。
+- `.claude-plugin/plugin.json`：Claude Code 插件入口。
+- `skills/agent-workflow/SKILL.md`：跨 Agent 的工作流 Skill。
 - `.agent-workflow/WORKFLOW.md`：完整工作流。
 - `.agent-workflow/SKILLS.md`：Skill 加载约定。
 - `.agent-workflow/STATE_RULES.md`：状态推进规则。
@@ -96,6 +100,26 @@ python3 scripts/workflow.py new-task "Add payment checkout" \
 - `.agent-workflow/templates/`：SPEC、任务卡、交接、审查、验证和交付模板。
 - `scripts/workflow.py`：本地 CLI，包含 `doctor` 和 `new-task`。
 - `PROJECT_PROFILE.md`：目标项目技术栈、命令、环境变量和约束。
+
+## 插件形态
+
+本仓库采用和 Superpowers 类似的包形态：平台入口文件负责让 Agent 工具发现插件，实际工作流能力放在共享 `skills/` 目录。
+
+```text
+.codex-plugin/plugin.json
+.claude-plugin/plugin.json
+skills/agent-workflow/SKILL.md
+skills/agent-workflow/agents/openai.yaml
+```
+
+Codex 读取 `.codex-plugin/plugin.json` 并从 `skills/` 发现 Skill。Claude Code 读取 `.claude-plugin/plugin.json`，并使用同一套仓库内容作为插件能力来源。
+
+入口 Skill 的职责是：
+
+- 安装或检查 `AGENTS.md`、`PROJECT_PROFILE.md`、`.agent-workflow/` 和 `scripts/workflow.py`。
+- 引导 Agent 从 `superpowers_bootstrap_hook` 和 `intake_hook` 开始。
+- 要求在用户确认 SPEC 和任务清单前不进入实现。
+- 要求完成前记录验证证据和交付报告。
 
 ## 给 Agent 的安装提示
 
@@ -105,10 +129,11 @@ python3 scripts/workflow.py new-task "Add payment checkout" \
 请把 https://github.com/peyoba/agent-workflow-template 安装到当前项目。
 
 要求：
-1. 复制 AGENTS.md、Agent.md、PROJECT_PROFILE.md、QUICKSTART.md、INSTALL_SUPERPOWERS.md、.agent-workflow/、scripts/ 和 tests/。
-2. 如果目标项目已经有 AGENTS.md、Agent.md 或 .agent-workflow/，不要覆盖，先展示差异并等待确认。
-3. 安装后运行 python3 scripts/workflow.py doctor。
-4. 如果 PROJECT_PROFILE.md 仍有占位符，先根据项目文件补全；无法确认的再问我。
+1. 复制 AGENTS.md、Agent.md、PROJECT_PROFILE.md、QUICKSTART.md、INSTALL_SUPERPOWERS.md、.agent-workflow/、scripts/、tests/ 和 skills/。
+2. 如果目标项目也要作为插件发布，同时复制 .codex-plugin/ 和 .claude-plugin/。
+3. 如果目标项目已经有 AGENTS.md、Agent.md、skills/ 或 .agent-workflow/，不要覆盖，先展示差异并等待确认。
+4. 安装后运行 python3 scripts/workflow.py doctor。
+5. 如果 PROJECT_PROFILE.md 仍有占位符，先根据项目文件补全；无法确认的再问我。
 ```
 
 ## 任务等级

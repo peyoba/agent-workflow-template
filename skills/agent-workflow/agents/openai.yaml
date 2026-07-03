@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Workflow"
+  short_description: "Install and run multi-agent workflow"
+  default_prompt: "Use $agent-workflow to install Agent Workflow in this project and run the workflow doctor."

@@ -29,6 +29,15 @@ curl -X POST http://localhost:3000/api/ai/summary \
 4. 检查响应结构。
 5. 检查服务日志不包含 API Key。
 
+## 证据门
+
+| 检查项 | 命令或证据 | 结果 |
+|--------|------------|------|
+| 测试 | `pytest tests/test_ai_summary_api.py -v` | PASS |
+| 构建 | 本示例任务不涉及构建产物 | 未运行 |
+| Lint / Typecheck | 示例项目未指定 lint/typecheck 命令 | 未运行 |
+| 真实依赖验证 | `curl -X POST http://localhost:3000/api/ai/summary ...` | PASS |
+
 ## 实际结果
 
 ```json
@@ -37,9 +46,13 @@ curl -X POST http://localhost:3000/api/ai/summary \
 }
 ```
 
+## 未验证项
+
+- 构建和 Lint / Typecheck 未运行；原因是示例未指定项目技术栈和对应命令。真实项目交付时必须按 `PROJECT_PROFILE.md` 补充。
+
 ## 结论
 
-通过
+PASS
 
 ## 发现的问题
 
@@ -48,4 +61,3 @@ curl -X POST http://localhost:3000/api/ai/summary \
 ## 后续动作
 
 进入 `integration_hook` 和 `delivery_hook`。
-

@@ -12,7 +12,7 @@
 skills/agent-workflow/SKILL.md
 ```
 
-在支持插件的 Agent 工具中，安装本仓库后使用 `agent-workflow` Skill。入口 Skill 会要求 Agent 检查项目上下文、安装或验证 `.agent-workflow/` 模板，并从 `intake_hook` 开始推进。
+在支持插件的 Agent 工具中，安装本仓库后使用 `agent-workflow` Skill。入口 Skill 会要求 Agent 检查项目上下文、安装或验证 `.agent-workflow/` 模板，并从 `superpowers_bootstrap_hook` 开始推进。
 
 如果当前工具不支持插件安装，继续按下面的文件模板方式复制。
 
@@ -23,25 +23,20 @@ skills/agent-workflow/SKILL.md
 ```text
 AGENTS.md
 Agent.md
-PROJECT_PROFILE.md
-.codex-plugin/
-.claude-plugin/
+PROJECT_PROFILE.template.md -> PROJECT_PROFILE.md
+DECISIONS.md
 .agent-workflow/
-skills/
 scripts/
-tests/
 QUICKSTART.md
 INSTALL_SUPERPOWERS.md
 ```
 
-如果只是在业务项目内安装工作流，而不需要把业务项目本身发布为插件，至少复制：
+如果目标项目本身也要作为 Agent 插件发布，再复制：
 
 ```text
-AGENTS.md
-Agent.md
-.agent-workflow/
-scripts/
-tests/
+.codex-plugin/
+.claude-plugin/
+skills/
 ```
 
 如果你的 Agent 工具默认读取 `AGENTS.md`，保留 `AGENTS.md` 即可。  
@@ -53,7 +48,7 @@ tests/
 复制完成后，在目标项目根目录运行：
 
 ```bash
-python3 scripts/workflow.py doctor
+python3 scripts/workflow.py doctor --mode installed
 ```
 
 `doctor` 只读取文件，不会修改项目。它会检查：
@@ -62,7 +57,7 @@ python3 scripts/workflow.py doctor
 - `.agent-workflow/` 核心文件是否齐全。
 - 子 Agent 文档和模板是否齐全。
 - `.agent-workflow/state.md` 是否包含必要字段。
-- Codex / Claude 插件入口和 `agent-workflow` Skill 是否存在。
+- installed 模式不要求 Codex / Claude 插件入口；template 模式会检查插件入口和 `agent-workflow` Skill。
 - `PROJECT_PROFILE.md` 是否还存在明显占位符。
 - 本机是否能找到 Superpowers skills。
 - Markdown 代码块是否闭合。
@@ -82,9 +77,9 @@ python3 scripts/workflow.py assess-risk "Add user login with session storage"
 如果你已经知道等级，可以直接指定：
 
 ```bash
-python3 scripts/workflow.py new-task "Add user login" \
+python3 scripts/workflow.py new-task "Add CLI report" \
   --level L2 \
-  --reason "Touches authentication and user sessions."
+  --reason "Adds a user-visible local CLI report."
 ```
 
 如果希望 CLI 根据标题、摘要和原因自动建议等级：
@@ -105,7 +100,7 @@ python3 scripts/workflow.py new-task "Add user login" \
 
 ```text
 .agent-workflow/specs/YYYY-MM-DD-task-name.md
-.agent-workflow/task-cards/YYYY-MM-DD-task-name.md
+.agent-workflow/task-cards/YYYY-MM-DD-task-name-<role>.md
 .agent-workflow/handoffs/YYYY-MM-DD-task-name.md
 ```
 
@@ -125,10 +120,10 @@ python3 scripts/workflow.py new-task "Add user login" \
 请把 https://github.com/peyoba/agent-workflow-template 安装到当前项目。
 
 要求：
-1. 复制 AGENTS.md、Agent.md、PROJECT_PROFILE.md、QUICKSTART.md、INSTALL_SUPERPOWERS.md、.agent-workflow/、scripts/、tests/ 和 skills/。
-2. 如果目标项目也要作为插件发布，同时复制 .codex-plugin/ 和 .claude-plugin/。
-3. 如果目标项目已经有 AGENTS.md、Agent.md、skills/ 或 .agent-workflow/，不要覆盖，先展示差异并等待确认。
-4. 安装后运行 python3 scripts/workflow.py doctor。
+1. 复制 AGENTS.md、Agent.md、DECISIONS.md、QUICKSTART.md、INSTALL_SUPERPOWERS.md、.agent-workflow/ 和 scripts/；把 PROJECT_PROFILE.template.md 复制到目标项目并命名为 PROJECT_PROFILE.md。
+2. 如果目标项目也要作为插件发布，同时复制 .codex-plugin/、.claude-plugin/ 和 skills/。
+3. 如果目标项目已经有 AGENTS.md、Agent.md、PROJECT_PROFILE.md、DECISIONS.md、skills/、.agent-workflow/ 或 scripts/，不要覆盖，先展示差异并等待确认。
+4. 安装后运行 python3 scripts/workflow.py doctor --mode installed。
 5. 如果 PROJECT_PROFILE.md 仍有占位符，先根据项目文件补全；无法确认的再问我。
 ```
 

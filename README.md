@@ -51,8 +51,8 @@ AGENTS.md
 Agent.md
 .agent-workflow/
 scripts/
-tests/
-PROJECT_PROFILE.md
+PROJECT_PROFILE.template.md -> PROJECT_PROFILE.md
+DECISIONS.md
 QUICKSTART.md
 INSTALL_SUPERPOWERS.md
 ```
@@ -60,7 +60,7 @@ INSTALL_SUPERPOWERS.md
 检查接入状态：
 
 ```bash
-python3 scripts/workflow.py doctor
+python3 scripts/workflow.py doctor --mode installed
 ```
 
 评估任务风险等级：
@@ -72,9 +72,9 @@ python3 scripts/workflow.py assess-risk "Add payment checkout with API keys"
 初始化一个新任务：
 
 ```bash
-python3 scripts/workflow.py new-task "Add user login" \
+python3 scripts/workflow.py new-task "Add CLI report" \
   --level L2 \
-  --reason "Touches authentication and user sessions."
+  --reason "Adds a user-visible local CLI report."
 ```
 
 也可以让 CLI 自动建议等级：
@@ -85,7 +85,7 @@ python3 scripts/workflow.py new-task "Add payment checkout" \
   --summary "Add payment checkout with API keys and production deployment."
 ```
 
-然后让主 Agent 读取 `AGENTS.md`、`PROJECT_PROFILE.md` 和 `.agent-workflow/state.md`，从 `intake_hook` 开始推进。
+然后让主 Agent 读取 `AGENTS.md`、`PROJECT_PROFILE.md` 和 `.agent-workflow/state.md`，从 `superpowers_bootstrap_hook` 开始推进。
 
 ## 核心文件
 
@@ -99,7 +99,8 @@ python3 scripts/workflow.py new-task "Add payment checkout" \
 - `.agent-workflow/agents/`：各子 Agent 职责文档。
 - `.agent-workflow/templates/`：SPEC、任务卡、交接、审查、验证和交付模板。
 - `scripts/workflow.py`：本地 CLI，包含 `doctor` 和 `new-task`。
-- `PROJECT_PROFILE.md`：目标项目技术栈、命令、环境变量和约束。
+- `PROJECT_PROFILE.md`：当前仓库自身的技术栈、命令、环境变量和约束。
+- `PROJECT_PROFILE.template.md`：安装到目标项目时复制为 `PROJECT_PROFILE.md` 的占位模板。
 
 ## 插件形态
 
@@ -129,10 +130,10 @@ Codex 读取 `.codex-plugin/plugin.json` 并从 `skills/` 发现 Skill。Claude 
 请把 https://github.com/peyoba/agent-workflow-template 安装到当前项目。
 
 要求：
-1. 复制 AGENTS.md、Agent.md、PROJECT_PROFILE.md、QUICKSTART.md、INSTALL_SUPERPOWERS.md、.agent-workflow/、scripts/、tests/ 和 skills/。
-2. 如果目标项目也要作为插件发布，同时复制 .codex-plugin/ 和 .claude-plugin/。
-3. 如果目标项目已经有 AGENTS.md、Agent.md、skills/ 或 .agent-workflow/，不要覆盖，先展示差异并等待确认。
-4. 安装后运行 python3 scripts/workflow.py doctor。
+1. 复制 AGENTS.md、Agent.md、DECISIONS.md、QUICKSTART.md、INSTALL_SUPERPOWERS.md、.agent-workflow/ 和 scripts/；把 PROJECT_PROFILE.template.md 复制到目标项目并命名为 PROJECT_PROFILE.md。
+2. 如果目标项目也要作为插件发布，同时复制 .codex-plugin/、.claude-plugin/ 和 skills/。
+3. 如果目标项目已经有 AGENTS.md、Agent.md、PROJECT_PROFILE.md、DECISIONS.md、skills/、.agent-workflow/ 或 scripts/，不要覆盖，先展示差异并等待确认。
+4. 安装后运行 python3 scripts/workflow.py doctor --mode installed。
 5. 如果 PROJECT_PROFILE.md 仍有占位符，先根据项目文件补全；无法确认的再问我。
 ```
 
@@ -147,8 +148,8 @@ Codex 读取 `.codex-plugin/plugin.json` 并从 `skills/` 发现 Skill。Claude 
 ## 验证
 
 ```bash
-python3 -m pytest tests/test_workflow_cli.py -v
-python3 scripts/workflow.py doctor
+python3 -m pytest tests -v
+python3 scripts/workflow.py doctor --mode template
 ```
 
 ## License

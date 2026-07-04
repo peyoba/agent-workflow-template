@@ -10,8 +10,8 @@ Use this skill to install or operate the Agent Workflow template in a software p
 ## Quick Start
 
 1. Read the target project's existing `AGENTS.md`, `Agent.md`, README, package files, and current task request.
-2. If the project does not have Agent Workflow installed, copy the template files listed in `README.md` and `QUICKSTART.md` without overwriting existing user files.
-3. Run `python3 scripts/workflow.py doctor` from the target project root.
+2. If the project does not have Agent Workflow installed, copy the template files listed in `README.md` and `QUICKSTART.md` without overwriting existing user files. Copy `PROJECT_PROFILE.template.md` as the target project's `PROJECT_PROFILE.md`.
+3. Run `python3 scripts/workflow.py doctor --mode installed` from the target project root.
 4. If `PROJECT_PROFILE.md` still contains placeholders, infer safe values from local project files and ask about anything that cannot be determined.
 5. Start work from `.agent-workflow/WORKFLOW.md`, `.agent-workflow/SKILLS.md`, `.agent-workflow/STATE_RULES.md`, and `.agent-workflow/state.md`.
 
@@ -29,13 +29,15 @@ An installed project should include:
 - `.agent-workflow/templates/`
 - `scripts/workflow.py`
 
+When installing from this repository, `PROJECT_PROFILE.md` must come from `PROJECT_PROFILE.template.md`; do not copy this repository's filled profile into a target project.
+
 ## Task Flow
 
 For new feature work, bug fixes, and refactors:
 
 1. Execute the Superpowers bootstrap described in `INSTALL_SUPERPOWERS.md`.
 2. Run intake and risk classification before implementation.
-3. Generate or update the SPEC and task card.
+3. Generate or update the SPEC and role task cards.
 4. Wait for user confirmation of scope and tasks before editing code.
 5. Use test-driven development for implementation.
 6. Record handoffs, verification evidence, and delivery report paths under `.agent-workflow/`.
@@ -45,7 +47,7 @@ Use `python3 scripts/workflow.py new-task "<title>" --level auto --summary "<sum
 
 ## Safety Rules
 
-- Do not overwrite an existing `AGENTS.md`, `Agent.md`, `.agent-workflow/`, `scripts/`, or `tests/` path without showing the conflict and getting confirmation.
+- Do not overwrite an existing `AGENTS.md`, `Agent.md`, `PROJECT_PROFILE.md`, `DECISIONS.md`, `skills/`, `.agent-workflow/`, or `scripts/` path without showing the conflict and getting confirmation.
 - Do not enter implementation before SPEC and task list confirmation unless the user explicitly overrides the workflow.
 - Do not claim completion until verification commands have been run and their output has been read.
 - Treat login, permissions, payments, database writes, secrets, external APIs, prompts, deployment, and production changes as at least `L3`.

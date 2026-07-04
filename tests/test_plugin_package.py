@@ -51,3 +51,30 @@ def test_agent_workflow_skill_has_valid_trigger_and_resources() -> None:
     assert "scripts/workflow.py doctor" in skill_text
     assert '  display_name: "Agent Workflow"' in metadata_text
     assert "Use $agent-workflow" in metadata_text
+
+
+def test_template_package_omits_obsolete_files() -> None:
+    obsolete_paths = [
+        "BOOTSTRAP_CHECKLIST.md",
+        "EMERGENCY_FIX.md",
+        "VERSION.md",
+        "scripts/workflow_lib/render.py",
+    ]
+
+    for path in obsolete_paths:
+        assert not (REPO_ROOT / path).exists(), path
+
+
+def test_install_docs_do_not_copy_examples_or_obsolete_docs() -> None:
+    docs = [
+        REPO_ROOT / "README.md",
+        REPO_ROOT / "QUICKSTART.md",
+        REPO_ROOT / ".agent-workflow" / "README.md",
+    ]
+    forbidden = ["BOOTSTRAP_CHECKLIST.md", "EMERGENCY_FIX.md", "VERSION.md"]
+
+    for path in docs:
+        text = path.read_text(encoding="utf-8")
+        assert ".agent-workflow/examples/" not in text
+        for item in forbidden:
+            assert item not in text, f"{path}: {item}"

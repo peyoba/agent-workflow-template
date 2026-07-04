@@ -57,6 +57,8 @@ QUICKSTART.md
 INSTALL_SUPERPOWERS.md
 ```
 
+普通业务项目不需要复制 `.agent-workflow/` 中的 `examples/` 目录；它只用于模板仓库维护和测试。
+
 检查接入状态：
 
 ```bash
@@ -130,7 +132,7 @@ Codex 读取 `.codex-plugin/plugin.json` 并从 `skills/` 发现 Skill。Claude 
 请把 https://github.com/peyoba/agent-workflow-template 安装到当前项目。
 
 要求：
-1. 复制 AGENTS.md、Agent.md、DECISIONS.md、QUICKSTART.md、INSTALL_SUPERPOWERS.md、.agent-workflow/ 和 scripts/；把 PROJECT_PROFILE.template.md 复制到目标项目并命名为 PROJECT_PROFILE.md。
+1. 复制 AGENTS.md、Agent.md、DECISIONS.md、QUICKSTART.md、INSTALL_SUPERPOWERS.md、.agent-workflow/ 和 scripts/；不复制 .agent-workflow 下的 examples 目录；把 PROJECT_PROFILE.template.md 复制到目标项目并命名为 PROJECT_PROFILE.md。
 2. 如果目标项目也要作为插件发布，同时复制 .codex-plugin/、.claude-plugin/ 和 skills/。
 3. 如果目标项目已经有 AGENTS.md、Agent.md、PROJECT_PROFILE.md、DECISIONS.md、skills/、.agent-workflow/ 或 scripts/，不要覆盖，先展示差异并等待确认。
 4. 安装后运行 python3 scripts/workflow.py doctor --mode installed。

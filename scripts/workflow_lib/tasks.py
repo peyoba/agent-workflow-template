@@ -9,7 +9,8 @@ from pathlib import Path
 
 from workflow_lib.metadata import DEFAULT_REASON, EXPECTED_WORK_DIRS, ROLE_DEFINITIONS, ROLE_SETS
 from workflow_lib.paths import relative
-from workflow_lib.render import render_handoff, render_spec, render_state, render_task_card
+from workflow_lib.render_artifacts import render_handoff, render_state, render_task_card
+from workflow_lib.render_spec import render_spec
 from workflow_lib.risk import assess_risk, format_assessment_reason
 
 

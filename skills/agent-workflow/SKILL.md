@@ -10,7 +10,7 @@ Use this skill to install or operate the Agent Workflow template in a software p
 ## Quick Start
 
 1. Read the target project's existing `AGENTS.md`, `Agent.md`, README, package files, and current task request.
-2. If the project does not have Agent Workflow installed, copy the template files listed in `README.md` and `QUICKSTART.md` without overwriting existing user files. Copy `PROJECT_PROFILE.template.md` as the target project's `PROJECT_PROFILE.md`.
+2. If the project does not have Agent Workflow installed, copy the template files listed in `README.md` and `QUICKSTART.md` without overwriting existing user files. Copy `PROJECT_PROFILE.template.md` as the target project's `PROJECT_PROFILE.md`; skip the example workflow artifacts for ordinary target projects.
 3. Run `python3 scripts/workflow.py doctor --mode installed` from the target project root.
 4. If `PROJECT_PROFILE.md` still contains placeholders, infer safe values from local project files and ask about anything that cannot be determined.
 5. Start work from `.agent-workflow/WORKFLOW.md`, `.agent-workflow/SKILLS.md`, `.agent-workflow/STATE_RULES.md`, and `.agent-workflow/state.md`.

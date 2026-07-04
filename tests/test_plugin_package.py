@@ -1,4 +1,5 @@
 import json
+import subprocess
 from pathlib import Path
 
 from tests.workflow_test_helpers import REPO_ROOT, copy_template, run_workflow
@@ -59,10 +60,27 @@ def test_template_package_omits_obsolete_files() -> None:
         "EMERGENCY_FIX.md",
         "VERSION.md",
         "scripts/workflow_lib/render.py",
+        "tests/test_examples.py",
     ]
 
     for path in obsolete_paths:
         assert not (REPO_ROOT / path).exists(), path
+
+
+def test_examples_are_local_only(tmp_path: Path) -> None:
+    gitignore = (REPO_ROOT / ".gitignore").read_text(encoding="utf-8")
+    copied_template = copy_template(tmp_path)
+    tracked_examples = subprocess.run(
+        ["git", "ls-files", ".agent-workflow/examples"],
+        cwd=REPO_ROOT,
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout.strip()
+
+    assert ".agent-workflow/examples/" in gitignore
+    assert tracked_examples == ""
+    assert not (copied_template / ".agent-workflow" / "examples").exists()
 
 
 def test_install_docs_do_not_copy_examples_or_obsolete_docs() -> None:

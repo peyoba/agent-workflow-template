@@ -31,7 +31,7 @@ QUICKSTART.md
 INSTALL_SUPERPOWERS.md
 ```
 
-普通业务项目不需要复制 `.agent-workflow/` 中的 `examples/` 目录；它只用于模板仓库维护和测试。
+普通业务项目不需要复制 `.agent-workflow/` 中的 `examples/` 目录；它是本地参考资料，不上传到 GitHub。
 
 如果目标项目本身也要作为 Agent 插件发布，再复制：
 

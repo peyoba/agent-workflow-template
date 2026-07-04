@@ -37,7 +37,7 @@
 
 | 路径 | 说明 |
 |------|------|
-| `.agent-workflow/` | 工作流规则、角色、模板和状态文件；示例目录只用于模板仓库维护 |
+| `.agent-workflow/` | 工作流规则、角色、模板和状态文件；本地 examples 仅作参考，不上传 |
 | `scripts/` | 本地 CLI 入口和 workflow 库 |
 | `scripts/workflow_lib/` | doctor、风险评估、任务生成和渲染逻辑 |
 | `tests/` | pytest 测试 |

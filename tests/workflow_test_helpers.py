@@ -11,10 +11,16 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = REPO_ROOT / "scripts" / "workflow.py"
 
 
+def ignore_template_noise(directory: str, names: list[str]) -> set[str]:
+    ignored = {".git", "__pycache__", ".pytest_cache"}
+    if Path(directory).resolve() == REPO_ROOT / ".agent-workflow":
+        ignored.add("examples")
+    return ignored.intersection(names)
+
+
 def copy_template(tmp_path: Path) -> Path:
     project = tmp_path / "project"
-    ignore = shutil.ignore_patterns(".git", "__pycache__", ".pytest_cache")
-    shutil.copytree(REPO_ROOT, project, ignore=ignore)
+    shutil.copytree(REPO_ROOT, project, ignore=ignore_template_noise)
     return project
 
 

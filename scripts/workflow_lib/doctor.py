@@ -53,6 +53,9 @@ def markdown_fences_are_balanced(root: Path) -> tuple[bool, list[str]]:
     for path in root.rglob("*.md"):
         if ".git" in path.parts:
             continue
+        relative_parts = path.relative_to(root).parts
+        if relative_parts[:2] == (".agent-workflow", "examples"):
+            continue
         text = path.read_text(encoding="utf-8")
         if text.count("```") % 2 != 0:
             broken.append(relative(path, root))
